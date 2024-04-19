@@ -68,9 +68,26 @@ def teacher_detail(request, id):
 def teacher_update(request, id):
     teacher = get_object_or_404(User, id=id)
 
-    if request.method == 'POST':
-        teacher.first_name = request.POST.first_name
-        ...
+    if request.method == "POST":
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+        username = request.POST.get('username')
+
+        if first_name and last_name and email and username:
+            teacher.first_name = first_name
+            teacher.last_name = last_name
+            teacher.email = email
+            teacher.username = username
+            teacher.save()
+            return redirect('teachers') 
+
+    context = {
+        'teacher': teacher
+    }
+
+    return render(request, 'app_main/teacher_form.html', context)
+
 
     context = {
         'teacher': teacher
