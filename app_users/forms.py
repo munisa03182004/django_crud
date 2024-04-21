@@ -6,8 +6,8 @@ User = get_user_model()
 
 
 class UserRegistrationForm(ModelForm):
-    password1 = forms.CharField(max_length=100, widget=forms.PasswordInput())
-    password2 = forms.CharField(max_length=100, widget=forms.PasswordInput())
+    password1 = forms.CharField(label= 'Password',max_length=100, widget=forms.PasswordInput())
+    password2 = forms.CharField(label='Password Confirmation',max_length=100, widget=forms.PasswordInput())
 
     class Meta:
         model = User

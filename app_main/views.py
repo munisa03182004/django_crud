@@ -2,6 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import get_user_model
 from django.http import Http404
 
+
+from .forms import UserForm
+
 User = get_user_model()
 
 
@@ -35,26 +38,20 @@ def teachers(request):
 
 def teacher_create(request):
     if request.method == 'POST':
-        first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        password1 = request.POST.get('password1')
-        password2 = request.POST.get('password2')
-
-        if first_name and last_name and username and email and password1 and password2:
-            if password1 == password2:
-                user = User.objects.create(
-                    first_name=first_name,
-                    last_name=last_name,
-                    email=email,
-                    username=username,
-                )
-                user.set_password(password2)
+        form = UserForm(request.POST)
+        if form.is_valid():
+            if request.POST.get('password1') == request.POST.get('password2'):
+                user = form.save(commit=False)
+                user.set_password(request.POST.get('password2'))
                 user.save()
                 return redirect('teachers')
+            
+    form = UserForm()
+    context = {
+        'form':form
+    }
 
-    return render(request, 'app_main/teacher_form.html')
+    return render(request, 'app_main/teacher_form.html',context)
 
 
 def teacher_detail(request, id):
@@ -74,13 +71,19 @@ def teacher_update(request, id):
         email = request.POST.get('email')
         username = request.POST.get('username')
 
-        if first_name and last_name and email and username:
-            teacher.first_name = first_name
-            teacher.last_name = last_name
-            teacher.email = email
-            teacher.username = username
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+
+        if password1 and password2:
+
+
+            if password1 == password2:
+                teacher.set_password(password2)
+
             teacher.save()
-            return redirect('teachers') 
+            return redirect('teachers')
+
+
 
     context = {
         'teacher': teacher
@@ -89,11 +92,7 @@ def teacher_update(request, id):
     return render(request, 'app_main/teacher_form.html', context)
 
 
-    context = {
-        'teacher': teacher
-    }
-    return render(request, 'app_main/teacher_form.html', context)
-
+    
 
 def teacher_delete(request, id):
     user = get_object_or_404(User, id=id)
